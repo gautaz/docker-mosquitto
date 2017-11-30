@@ -1,4 +1,10 @@
-FROM alpine:edge
+FROM alpine:3.6
+
+ARG MOSQUITTO_VERSION=355bb37
+ARG MOSQUITTO_AUTH_VERSION=50463bd
+
+LABEL "https://github.com/eclipse/mosquitto.git"=${MOSQUITTO_VERSION}
+LABEL "https://github.com/jpmens/mosquitto-auth-plug.git"=${MOSQUITTO_AUTH_VERSION}
 
 EXPOSE 1883
 EXPOSE 9883
@@ -9,11 +15,10 @@ RUN addgroup -S mosquitto && \
     adduser -S -H -h /var/empty -s /sbin/nologin -D -G mosquitto mosquitto
 
 ENV PATH=/usr/local/bin:/usr/local/sbin:$PATH
-ENV MOSQUITTO_VERSION=fixes
 
 COPY run.sh /
 COPY libressl.patch /
-#RUN buildDeps='git build-base alpine-sdk openssl-dev libwebsockets-dev c-ares-dev util-linux-dev hiredis-dev curl-dev libxslt docbook-xsl'; \
+
 RUN buildDeps='git build-base libressl-dev libwebsockets-dev c-ares-dev util-linux-dev hiredis-dev curl-dev libxslt docbook-xsl'; \
     chmod +x /run.sh && \
     mkdir -p /var/lib/mosquitto && \
@@ -30,8 +35,9 @@ RUN buildDeps='git build-base libressl-dev libwebsockets-dev c-ares-dev util-lin
     patch -p1 < /libressl.patch && \
     make WITH_MEMORY_TRACKING=no WITH_SRV=yes WITH_WEBSOCKETS=yes WITH_TLS_PSK=no && \
     make install && \
-    git clone git://github.com/jpmens/mosquitto-auth-plug.git && \
+    git clone https://github.com/jpmens/mosquitto-auth-plug.git && \
     cd mosquitto-auth-plug && \
+    git checkout ${MOSQUITTO_AUTH_VERSION} && \
     cp config.mk.in config.mk && \
     sed -i "s/BACKEND_REDIS ?= no/BACKEND_REDIS ?= yes/" config.mk && \
     sed -i "s/BACKEND_HTTP ?= no/BACKEND_HTTP ?= yes/" config.mk && \

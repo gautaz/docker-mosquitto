@@ -1,7 +1,7 @@
 FROM alpine:3.6
 
-ARG MOSQUITTO_VERSION=355bb37
-ARG MOSQUITTO_AUTH_VERSION=50463bd
+ARG MOSQUITTO_VERSION=7d8d04b
+ARG MOSQUITTO_AUTH_VERSION=e2b460e
 
 LABEL "https://github.com/eclipse/mosquitto.git"=${MOSQUITTO_VERSION}
 LABEL "https://github.com/jpmens/mosquitto-auth-plug.git"=${MOSQUITTO_AUTH_VERSION}
